@@ -6,6 +6,13 @@
     <title>Expense Summary</title>
     <link rel="stylesheet" href="static/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script>
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -13,8 +20,8 @@
             <div class="header-content">
                 <h1>💰 Personal Expense Tracker</h1>
                 <div class="user-info">
-                    <span>Welcome, User!</span>
-                    <a href="login.html" class="btn-logout">Logout</a>
+                    <span id="welcomeMsg">Welcome!</span>
+                    <a href="login.html" class="btn-logout" onclick="logout()">Logout</a>
                 </div>
             </div>
             <nav>
@@ -25,13 +32,11 @@
 
         <section class="charts-section">
             <h2>📊 Visual Analytics</h2>
-            
             <div class="charts-grid">
                 <div class="chart-container">
                     <h3>Expenses by Category</h3>
                     <canvas id="categoryChart"></canvas>
                 </div>
-                
                 <div class="chart-container">
                     <h3>Monthly Trend</h3>
                     <canvas id="monthlyChart"></canvas>
@@ -41,7 +46,6 @@
 
         <section class="summary-section">
             <h2>📅 Monthly Summary</h2>
-            <button onclick="refreshDashboard()" class="btn-secondary">Refresh All Data</button>
             <div class="summary-grid" id="monthlySummary">
                 <p class="loading">Loading monthly summary...</p>
             </div>
@@ -60,9 +64,7 @@
                         </tr>
                     </thead>
                     <tbody id="categoryTableBody">
-                        <tr>
-                            <td colspan="4" class="loading">Loading category summary...</td>
-                        </tr>
+                        <tr><td colspan="4" class="loading">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -74,44 +76,39 @@
     </div>
 
     <script src="static/js/script.js"></script>
-
     <script>
-        let categoryChartInstance = null;
-        let monthlyChartInstance = null;
+        // Set Username
+        document.getElementById('welcomeMsg').textContent = "Welcome, " + currentUser + "!";
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+        }
 
-        // Load data when page loads
+        // --- DASHBOARD LOGIC ---
         window.onload = function() {
             refreshDashboard();
         };
 
         function refreshDashboard() {
-            // Get data from Local Storage (using the function from script.js if available, or manual)
             const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
             
             if (expenses.length === 0) {
                 document.getElementById('monthlySummary').innerHTML = '<p class="loading">No expenses found.</p>';
-                document.getElementById('categoryTableBody').innerHTML = '<tr><td colspan="4">No data yet. Add expenses to see charts!</td></tr>';
+                document.getElementById('categoryTableBody').innerHTML = '<tr><td colspan="4">No data yet.</td></tr>';
                 return;
             }
 
-            // 1. Process Data
             const categoryData = processCategoryData(expenses);
             const monthlyData = processMonthlyData(expenses);
-
-            // 2. Update UI
             updateCharts(categoryData, monthlyData);
             renderMonthlyGrid(monthlyData);
             renderCategoryTable(categoryData, expenses);
         }
 
-        // --- DATA PROCESSING FUNCTIONS ---
-
         function processCategoryData(expenses) {
             const summary = {};
             expenses.forEach(exp => {
-                if (!summary[exp.category]) {
-                    summary[exp.category] = { total: 0, count: 0 };
-                }
+                if (!summary[exp.category]) summary[exp.category] = { total: 0, count: 0 };
                 summary[exp.category].total += parseFloat(exp.amount);
                 summary[exp.category].count += 1;
             });
@@ -121,7 +118,6 @@
         function processMonthlyData(expenses) {
             const summary = {};
             expenses.forEach(exp => {
-                // format YYYY-MM
                 const monthKey = exp.date.substring(0, 7); 
                 if (!summary[monthKey]) summary[monthKey] = 0;
                 summary[monthKey] += parseFloat(exp.amount);
@@ -129,37 +125,27 @@
             return summary;
         }
 
-        // --- RENDERING FUNCTIONS ---
-
         function updateCharts(catData, monthData) {
             const ctxCat = document.getElementById('categoryChart');
             const ctxMonth = document.getElementById('monthlyChart');
 
-            // 1. Category Chart
-            if (categoryChartInstance) categoryChartInstance.destroy();
-            
-            categoryChartInstance = new Chart(ctxCat, {
+            if (window.catChart) window.catChart.destroy();
+            window.catChart = new Chart(ctxCat, {
                 type: 'bar',
                 data: {
                     labels: Object.keys(catData),
                     datasets: [{
                         label: 'Total Spent',
                         data: Object.values(catData).map(d => d.total),
-                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
-                        borderColor: 'rgba(102, 126, 234, 1)',
-                        borderWidth: 1
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)'
                     }]
                 },
                 options: { responsive: true }
             });
 
-            // 2. Monthly Chart
-            if (monthlyChartInstance) monthlyChartInstance.destroy();
-            
-            // Sort months
+            if (window.monthChart) window.monthChart.destroy();
             const sortedMonths = Object.keys(monthData).sort();
-            
-            monthlyChartInstance = new Chart(ctxMonth, {
+            window.monthChart = new Chart(ctxMonth, {
                 type: 'line',
                 data: {
                     labels: sortedMonths,
@@ -167,7 +153,6 @@
                         label: 'Monthly Trend',
                         data: sortedMonths.map(m => monthData[m]),
                         borderColor: 'rgba(237, 100, 166, 1)',
-                        tension: 0.3,
                         fill: true
                     }]
                 },
@@ -178,18 +163,10 @@
         function renderMonthlyGrid(monthData) {
             const container = document.getElementById('monthlySummary');
             let html = '';
-            
             Object.keys(monthData).sort().forEach(month => {
-                // Convert 2026-02 to "February 2026"
                 const dateObj = new Date(month + '-01');
                 const monthName = dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                
-                html += `
-                    <div class="summary-card">
-                        <h3>${monthName}</h3>
-                        <div class="amount">₹${monthData[month].toFixed(2)}</div>
-                    </div>
-                `;
+                html += `<div class="summary-card"><h3>${monthName}</h3><div class="amount">₹${monthData[month].toFixed(2)}</div></div>`;
             });
             container.innerHTML = html;
         }
@@ -197,21 +174,12 @@
         function renderCategoryTable(catData, expenses) {
             const tbody = document.getElementById('categoryTableBody');
             const totalEl = document.getElementById('grandTotal');
-            
             let totalAmount = expenses.reduce((sum, item) => sum + parseFloat(item.amount), 0);
             totalEl.textContent = '₹' + totalAmount.toFixed(2);
-
             let html = '';
             for (const [category, data] of Object.entries(catData)) {
                 const percent = ((data.total / totalAmount) * 100).toFixed(1);
-                html += `
-                    <tr>
-                        <td>${category}</td>
-                        <td>${data.count}</td>
-                        <td>₹${data.total.toFixed(2)}</td>
-                        <td>${percent}%</td>
-                    </tr>
-                `;
+                html += `<tr><td>${category}</td><td>${data.count}</td><td>₹${data.total.toFixed(2)}</td><td>${percent}%</td></tr>`;
             }
             tbody.innerHTML = html;
         }
