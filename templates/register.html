@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Expense Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
     <div class="auth-container">
@@ -40,7 +40,7 @@
             <div id="message" class="message"></div>
             
             <p class="auth-link">
-                Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+                Already have an account? <a href="login.html">Login here</a>
             </p>
         </div>
     </div>
@@ -55,47 +55,37 @@
             messageDiv.style.display = 'block';
         }
         
-        registerForm.addEventListener('submit', async (e) => {
+        registerForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
+            // 1. Validation
             if (password !== confirmPassword) {
                 showMessage('Passwords do not match!', 'error');
                 return;
             }
-            
-            const formData = {
-                username: document.getElementById('username').value,
-                email: document.getElementById('email').value,
-                password: password
-            };
-            
-            try {
-                const response = await fetch('/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    showMessage('Registration successful! Redirecting to login...', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 2000);
-                } else {
-                    showMessage(result.error || 'Registration failed', 'error');
-                }
-                
-            } catch (error) {
-                showMessage('Network error. Please try again.', 'error');
-                console.error('Error:', error);
+
+            // 2. Get existing users from "Database" (Local Storage)
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            // 3. Check if user already exists
+            if (users.some(user => user.username === username)) {
+                showMessage('Username already taken!', 'error');
+                return;
             }
+
+            // 4. Save new user
+            users.push({ username: username, password: password });
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            showMessage('Registration successful! Redirecting...', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
         });
     </script>
 </body>
