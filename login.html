@@ -34,36 +34,20 @@
         </div>
     </div>
 
-    <script>
-    // 1. Reset login status when loading this page
-    localStorage.removeItem('isLoggedIn');
-    console.log("Login page loaded. Session cleared.");
-
+  <script>
     const loginForm = document.getElementById('loginForm');
-    const messageDiv = document.getElementById('message');
-    
-    function showMessage(message, type) {
-        messageDiv.textContent = message;
-        messageDiv.className = `message ${type}`;
-        messageDiv.style.display = 'block';
-    }
     
     loginForm.addEventListener('submit', (e) => {
-        e.preventDefault(); // Stop page from reloading
-        console.log("Login button clicked...");
+        e.preventDefault();
         
-        // 2. Simulate Success
-        showMessage('Login successful! Redirecting...', 'success');
+        // 1. Alert the user (Proof the button works)
+        alert("Button clicked! Attempting to go to index.html...");
         
-        // 3. SET THE KEY (Crucial Step)
+        // 2. Set the key
         localStorage.setItem('isLoggedIn', 'true');
-        console.log("Key saved to Local Storage.");
         
-        // 4. Redirect after 1 second
-        setTimeout(() => {
-            console.log("Attempting redirect to index.html...");
-            window.location.href = 'index.html';
-        }, 1000);
+        // 3. Move
+        window.location.href = 'index.html';
     });
 </script>
 </body>
