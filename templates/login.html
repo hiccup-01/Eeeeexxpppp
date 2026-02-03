@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Expense Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
     <div class="auth-container">
@@ -29,46 +29,48 @@
             <div id="message" class="message"></div>
             
             <p class="auth-link">
-                Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+                Don't have an account? <a href="register.html">Register here</a>
             </p>
         </div>
     </div>
-<script>
-    // 1. Reset login status
-    localStorage.removeItem('isLoggedIn');
 
-    const loginForm = document.getElementById('loginForm');
-    const messageDiv = document.getElementById('message');
-    
-    function showMessage(message, type) {
-        messageDiv.textContent = message;
-        messageDiv.className = `message ${type}`;
-        messageDiv.style.display = 'block';
-    }
-    
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
+    <script>
+        // Clear session on load
+        localStorage.removeItem('currentUser');
+
+        const loginForm = document.getElementById('loginForm');
+        const messageDiv = document.getElementById('message');
         
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        // --- THE "FAKE" SECURITY CHECK ---
-        // Only allow these specific details
-        if (username === "Manoj" && password === "123456") {
-            
-            // Success
-            showMessage('Login successful! Redirecting...', 'success');
-            localStorage.setItem('isLoggedIn', 'true');
-            
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
-
-        } else {
-            // Failure
-            showMessage('Invalid username or password! (Try: Manoj / 123456)', 'error');
+        function showMessage(message, type) {
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
         }
-    });
-</script>
+        
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+
+            // 1. Get users from "Database"
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            // 2. Find matching user
+            const validUser = users.find(user => user.username === usernameInput && user.password === passwordInput);
+
+            if (validUser) {
+                // Success: Save the specific user who logged in
+                localStorage.setItem('currentUser', validUser.username);
+                showMessage('Login successful! Redirecting...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } else {
+                showMessage('Invalid username or password!', 'error');
+            }
+        });
+    </script>
 </body>
 </html>
