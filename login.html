@@ -35,32 +35,32 @@
     </div>
 
     <script>
-        const loginForm = document.getElementById('loginForm');
-        const messageDiv = document.getElementById('message');
+    // 1. Clear any old session when opening the login page (Auto-Logout)
+    localStorage.removeItem('isLoggedIn');
+
+    const loginForm = document.getElementById('loginForm');
+    const messageDiv = document.getElementById('message');
+    
+    function showMessage(message, type) {
+        messageDiv.textContent = message;
+        messageDiv.className = `message ${type}`;
+        messageDiv.style.display = 'block';
+    }
+    
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
         
-        function showMessage(message, type) {
-            messageDiv.textContent = message;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-        }
+        // 2. Simulate Login
+        showMessage('Login successful! Redirecting...', 'success');
         
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // 1. Get Values (We don't actually check them in Demo Mode)
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            // 2. Simulate Login Success
-            // On a real server, we would fetch('/login').
-            // Here, we just let them in to see the portfolio.
-            showMessage('Login successful! (Demo Mode) Redirecting...', 'success');
-            
-            // 3. Redirect to Main Dashboard
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
-        });
-    </script>
+        // 3. SET THE KEY (Important!)
+        localStorage.setItem('isLoggedIn', 'true');
+        
+        // 4. Redirect to Dashboard
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
+    });
+</script>
 </body>
 </html>
