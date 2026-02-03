@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Expense Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
     <div class="auth-container">
@@ -29,7 +29,7 @@
             <div id="message" class="message"></div>
             
             <p class="auth-link">
-                Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+                Don't have an account? <a href="register.html">Register here</a>
             </p>
         </div>
     </div>
@@ -44,38 +44,22 @@
             messageDiv.style.display = 'block';
         }
         
-        loginForm.addEventListener('submit', async (e) => {
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const formData = {
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value
-            };
+            // 1. Get Values (We don't actually check them in Demo Mode)
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
             
-            try {
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    showMessage('Login successful! Redirecting...', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 1000);
-                } else {
-                    showMessage(result.error || 'Login failed', 'error');
-                }
-                
-            } catch (error) {
-                showMessage('Network error. Please try again.', 'error');
-                console.error('Error:', error);
-            }
+            // 2. Simulate Login Success
+            // On a real server, we would fetch('/login').
+            // Here, we just let them in to see the portfolio.
+            showMessage('Login successful! (Demo Mode) Redirecting...', 'success');
+            
+            // 3. Redirect to Main Dashboard
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
         });
     </script>
 </body>
