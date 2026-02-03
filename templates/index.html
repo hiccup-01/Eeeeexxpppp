@@ -4,34 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Expense Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
- <script>
-    // SECURITY GUARD: Check if user is logged in
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (!isLoggedIn) {
-        // If not logged in, redirect to login page immediately
-        window.location.href = 'login.html';
-    }
-</script> 
+    <link rel="stylesheet" href="static/css/style.css">
+    
+    <script>
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
+    </script>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header>
             <div class="header-content">
                 <h1>💰 Personal Expense Tracker</h1>
                 <div class="user-info">
-                    <span>Welcome, {{ username }}!</span>
-                    <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+                    <span id="welcomeMsg">Welcome!</span>
+                    <a href="login.html" class="btn-logout" onclick="logout()">Logout</a>
                 </div>
             </div>
             <nav>
-                <a href="/" class="nav-link active">Add Expense</a>
-                <a href="/summary" class="nav-link">View Summary</a>
+                <a href="index.html" class="nav-link active">Add Expense</a>
+                <a href="summary.html" class="nav-link">View Summary</a>
             </nav>
         </header>
 
-        <!-- Add Expense Form -->
         <section class="form-section">
             <h2>Add New Expense</h2>
             <form id="expenseForm">
@@ -68,11 +65,9 @@
                 <button type="submit" class="btn-primary">Add Expense</button>
             </form>
             
-            <!-- Message display -->
             <div id="message" class="message"></div>
         </section>
 
-        <!-- Recent Expenses Table -->
         <section class="table-section">
             <h2>Recent Expenses</h2>
             <div class="table-controls">
@@ -90,9 +85,7 @@
                         </tr>
                     </thead>
                     <tbody id="expenseTableBody">
-                        <tr>
-                            <td colspan="5" class="loading">Loading expenses...</td>
-                        </tr>
+                        <tr><td colspan="5" class="loading">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -103,6 +96,14 @@
         </section>
     </div>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="static/js/script.js"></script>
+    <script>
+        // Set Username
+        document.getElementById('welcomeMsg').textContent = "Welcome, " + currentUser + "!";
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+        }
+    </script>
 </body>
 </html>
