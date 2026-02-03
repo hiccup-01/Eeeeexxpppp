@@ -33,21 +33,41 @@
             </p>
         </div>
     </div>
+<script>
+    // 1. Reset login status
+    localStorage.removeItem('isLoggedIn');
 
-   <script>
     const loginForm = document.getElementById('loginForm');
+    const messageDiv = document.getElementById('message');
+    
+    function showMessage(message, type) {
+        messageDiv.textContent = message;
+        messageDiv.className = `message ${type}`;
+        messageDiv.style.display = 'block';
+    }
     
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         
-        // 1. Alert the user (Proof the button works)
-        alert("Button clicked! Attempting to go to index.html...");
-        
-        // 2. Set the key
-        localStorage.setItem('isLoggedIn', 'true');
-        
-        // 3. Move
-        window.location.href = 'index.html';
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // --- THE "FAKE" SECURITY CHECK ---
+        // Only allow these specific details
+        if (username === "Manoj" && password === "123456") {
+            
+            // Success
+            showMessage('Login successful! Redirecting...', 'success');
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+
+        } else {
+            // Failure
+            showMessage('Invalid username or password! (Try: Manoj / 123456)', 'error');
+        }
     });
 </script>
 </body>
