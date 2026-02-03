@@ -58,20 +58,31 @@
         registerForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
-            // 1. Client-side Validation
+            // 1. Validation
             if (password !== confirmPassword) {
                 showMessage('Passwords do not match!', 'error');
                 return;
             }
+
+            // 2. Get existing users from "Database" (Local Storage)
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            // 3. Check if user already exists
+            if (users.some(user => user.username === username)) {
+                showMessage('Username already taken!', 'error');
+                return;
+            }
+
+            // 4. Save new user
+            users.push({ username: username, password: password });
+            localStorage.setItem('users', JSON.stringify(users));
             
-            // 2. Simulation (Demo Mode)
-            // Since we don't have a database, we just pretend it worked.
-            showMessage('Registration successful! (Demo Mode) Redirecting...', 'success');
+            showMessage('Registration successful! Redirecting...', 'success');
             
-            // 3. Redirect to Login Page
             setTimeout(() => {
                 window.location.href = 'login.html';
             }, 1500);
