@@ -192,5 +192,17 @@
             localStorage.removeItem('currentUser');
         }
     </script>
+  <script>
+        // Opening animation logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('opening-animation').classList.add('fade-out');
+                setTimeout(() => {
+                    document.getElementById('opening-animation').style.display = 'none';
+                    document.getElementById('main-content').classList.remove('hidden');
+                }, 1000);
+            }, 3000);
+        });
+    </script>
 </body>
 </html>
